@@ -1,0 +1,150 @@
+{
+    "visualizations": {
+        "viz_P4J9QDWL": {
+            "type": "splunk.bar",
+            "dataSources": {
+                "primary": "ds_6YbcRjdI"
+            },
+            "title": "Volume by Event Code",
+            "options": {
+                "x": "> primary | seriesByName('signature_id')",
+                "y": "> primary | frameBySeriesNames('event_count')",
+                "dataValuesDisplay": "all",
+                "seriesColorsByField": {}
+            }
+        },
+        "viz_yLBGH1R7": {
+            "type": "splunk.singlevalue",
+            "dataSources": {
+                "primary": "ds_48Gnq8qG"
+            },
+            "title": "Total Event Count"
+        },
+        "viz_na2XqXOf": {
+            "type": "splunk.DomainChart",
+            "dataSources": {
+                "primary": "ds_cv6eJOb0"
+            },
+            "title": "Critical Domain Groups",
+            "options": {},
+            "context": {},
+            "showProgressBar": false,
+            "showLastUpdated": false
+        },
+        "viz_x1xezCMr": {
+            "type": "splunk.table",
+            "title": "Users Added to Critical Groups",
+            "dataSources": {
+                "primary": "ds_lGboAdCR"
+            }
+        }
+    },
+    "dataSources": {
+        "ds_6YbcRjdI": {
+            "type": "ds.search",
+            "options": {
+                "query": "| makeresults count=5\n| streamstats count\n| eval _time=_time-(count*3600)\n| eval signature_id=case(count=1, 4741, count=2, 4625, count=3, 4738, count=4, 4724, count=5, 4624)\n```| eval description=case()```\n| eval event_count=count*((random() % 500000)+1)\n```| rename count AS event_count```\n| stats sum(event_count) AS event_count BY signature_id"
+            },
+            "name": "Signature Count Search"
+        },
+        "ds_48Gnq8qG": {
+            "type": "ds.chain",
+            "options": {
+                "extend": "ds_6YbcRjdI",
+                "query": "|  stats sum(event_count) as total_count"
+            },
+            "name": "Total Count Search"
+        },
+        "ds_cv6eJOb0": {
+            "type": "ds.search",
+            "options": {
+                "query": "| inputlookup treechart_lookup | stats values(user) as users by group"
+            },
+            "name": "domain_groups"
+        },
+        "ds_lGboAdCR": {
+            "type": "ds.search",
+            "options": {
+                "query": "| makeresults count=4\n| streamstats count\n| eval _time=_time-(count*3600)\n| eval signature_id=\"4732\"\n| eval user=case(count=1, \"alice\", count=2, \"bob\", count=3, \"carmen\", count=4, \"daniel\")\n| eval group=case(count=1, \"Administrators\", count=2, \"AccountOperators\", count=3, \"AccountOperators\", count=4, \"Domain Admins\")\n| table _time signature_id user group"
+            },
+            "name": "critical_groups_users"
+        }
+    },
+    "defaults": {
+        "dataSources": {
+            "ds.search": {
+                "options": {
+                    "queryParameters": {
+                        "latest": "$global_time.latest$",
+                        "earliest": "$global_time.earliest$"
+                    }
+                }
+            }
+        }
+    },
+    "inputs": {
+        "input_global_trp": {
+            "type": "input.timerange",
+            "options": {
+                "token": "global_time",
+                "defaultValue": "-24h@h,now"
+            },
+            "title": "Global Time Range"
+        }
+    },
+    "layout": {
+        "type": "absolute",
+        "options": {
+            "width": 1440,
+            "height": 960,
+            "display": "auto"
+        },
+        "structure": [
+            {
+                "item": "viz_P4J9QDWL",
+                "type": "block",
+                "position": {
+                    "x": 0,
+                    "y": 330,
+                    "w": 1050,
+                    "h": 390
+                }
+            },
+            {
+                "item": "viz_yLBGH1R7",
+                "type": "block",
+                "position": {
+                    "x": 1060,
+                    "y": 330,
+                    "w": 380,
+                    "h": 390
+                }
+            },
+            {
+                "item": "viz_na2XqXOf",
+                "type": "block",
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 1440,
+                    "h": 320
+                }
+            },
+            {
+                "item": "viz_x1xezCMr",
+                "type": "block",
+                "position": {
+                    "x": 0,
+                    "y": 730,
+                    "w": 1440,
+                    "h": 300
+                }
+            }
+        ],
+        "globalInputs": [
+            "input_global_trp"
+        ]
+    },
+    "description": "",
+    "title": "Dashboard Studio Sample"
+}

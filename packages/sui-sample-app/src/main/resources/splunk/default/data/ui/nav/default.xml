@@ -1,0 +1,6 @@
+<nav>
+  <view name="start" default="true"/>
+  <view name="SampleSplunkReactPage"/>
+  <view name="dashboard_studio_sample"/>
+  <view name="DashboardFrameworkExample"/>
+</nav>

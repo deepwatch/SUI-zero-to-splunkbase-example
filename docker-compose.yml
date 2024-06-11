@@ -1,0 +1,14 @@
+
+services:
+  sui_dev:
+    image: ${SPLUNK_IMAGE:-splunk/splunk:latest}
+    platform: linux/amd64
+    container_name: sui_dev
+    volumes:
+      - ${LOCAL_WORKSPACE_FOLDER:-./}/packages/sui-sample-app/stage:/opt/splunk/etc/apps/sui-sample-app
+      - ${LOCAL_WORKSPACE_FOLDER:-./}/splunk-default.yml:/tmp/defaults/default.yml
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_PASSWORD
+    ports:
+      - 8000:8000

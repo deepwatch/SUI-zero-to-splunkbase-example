@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<view template="sui-sample-app:/templates/SampleSplunkReactPage.html" type="html">
+	<label>Sample Splunk React Page</label>
+</view>

@@ -1,0 +1,56 @@
+name: Build and test app
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Build the app
+        run: |
+          yarn run setup
+          cp -R packages/sui-sample-app/stage sui-sample-app && mkdir -p built-apps && tar -czvf built-apps/sui-sample-app.tar.gz sui-sample-app && rm -rf sui-sample-app/
+      
+      - name: Upload app package
+        uses: actions/upload-artifact@v4
+        with:
+          name: sui-sample-app.tar.gz
+          path: built-apps
+  
+  appinspect:
+    name: Appinspect
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Download app package
+        uses: actions/download-artifact@v4
+        with:
+          name: sui-sample-app.tar.gz
+      
+      - name: Move package to appinspect dir
+        run: |
+          mkdir appinspect
+          mv sui-sample-app.tar.gz appinspect/
+      
+      - name: Test using Appinspect
+        uses: splunk/appinspect-api-action@v3.0
+        with:
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          app_path: appinspect/
+          included_tags: "cloud,future,private_app,packaging_standards,self-service,splunk_appinspect"
+      
+      - name: Upload Appinspect Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppInspect_response.html
+          path: AppInspect_response.html
